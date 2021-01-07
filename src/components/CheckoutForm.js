@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import axios from "axios"
 
@@ -6,6 +7,17 @@ const CheckoutForm = () => {
     const stripe = useStripe()
     const elements = useElements()
 
+    const [loading, setLoading] = useState(false)
+    const [alert, setAlert] = useState({ type: '', message: '', show: false })
+
+    const showAlert = (type, message) => {
+        setAlert({ type, message, show: true })
+
+        setTimeout(() => {
+            setAlert({ type: '', message: '', show: false })
+        }, 3000)
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -13,6 +25,8 @@ const CheckoutForm = () => {
             type: 'card',
             card: elements.getElement(CardElement)
         })
+
+        setLoading(true)
 
         if(!error){
             const { id } = paymentMethod
@@ -28,14 +42,19 @@ const CheckoutForm = () => {
                 console.log(data)
 
                 elements.getElement(CardElement).clear()
+
+                showAlert('alert-success', data.message)
             }catch(ex){
                 const { message } = ex.response.data
                 console.log("Error:", message)
+                showAlert('alert-danger', message)
             }
             
         }else{
             console.log(error)
         }
+
+        setLoading(false)
     }
 
     return <form onSubmit={handleSubmit} className="card card-body">
@@ -52,7 +71,22 @@ const CheckoutForm = () => {
             <CardElement className="form-control"/>
         </div>
 
-        <button className="btn btn-success">Buy</button>
+        <button className="btn btn-success" disabled={!stripe || loading}>
+            { loading ? (
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            ) : "Buy"}
+        </button><br/>
+        
+        {
+            alert.show ? (
+                <div className={`alert ${alert.type} text-center`} role="alert">
+                    { alert.message }
+                </div>
+            ) : null
+        }
+        
     </form>
 }
 
