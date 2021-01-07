@@ -18,15 +18,23 @@ const CheckoutForm = () => {
             const { id } = paymentMethod
             const dollarsAmount = 100 //dollars as example
 
-            const { data } = await axios.post("http://localhost:3001/api/checkout", {
-                id,
-                amount: dollarsAmount * 100 // dollars to centavos
+            try{
+                const { data } = await axios.post("http://localhost:3001/api/checkout", {
+                    id,
+                    amount: dollarsAmount * 100 // dollars to centavos
 
-            })
+                })
 
-            console.log(data)
+                console.log(data)
+
+                elements.getElement(CardElement).clear()
+            }catch(ex){
+                const { message } = ex.response.data
+                console.log("Error:", message)
+            }
+            
         }else{
-
+            console.log(error)
         }
     }
 
