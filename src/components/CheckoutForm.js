@@ -1,5 +1,5 @@
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
-
+import axios from "axios"
 
 const CheckoutForm = () => {
 
@@ -15,9 +15,18 @@ const CheckoutForm = () => {
         })
 
         if(!error){
-            console.log(paymentMethod)
+            const { id } = paymentMethod
+            const dollarsAmount = 100 //dollars as example
+
+            const { data } = await axios.post("http://localhost:3001/api/checkout", {
+                id,
+                amount: dollarsAmount * 100 // dollars to centavos
+
+            })
+
+            console.log(data)
         }else{
-            
+
         }
     }
 
@@ -28,6 +37,9 @@ const CheckoutForm = () => {
          alt="Rog monitor" 
          className="img-fluid"
         />
+
+        <h4 className="text-center">Price: $100</h4>
+
         <div className="form-group">
             <CardElement className="form-control"/>
         </div>
